@@ -1,5 +1,4 @@
 "use strict";
-// routes.ts
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -30,7 +29,7 @@ router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 // Ruta para registrar un nuevo usuario
 router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, password } = req.body;
+        const { firstName, lastName, username, email, password } = req.body;
         // Verificar si el usuario ya existe en la base de datos
         const existingUser = yield User_1.default.findOne({ email });
         if (existingUser) {
@@ -39,8 +38,10 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
         // Encriptar la contraseña
         const saltRounds = 10;
         const hashedPassword = yield bcrypt_1.default.hash(password, saltRounds);
-        // Crear una nueva instancia del modelo de usuario con la contraseña encriptada
+        // Crear una nueva instancia del modelo de usuario con los datos proporcionados
         const newUser = new User_1.default({
+            firstName,
+            lastName,
             username,
             email,
             password: hashedPassword,
@@ -51,9 +52,10 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
             message: 'Usuario registrado exitosamente',
             user: {
                 _id: newUser._id,
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
                 username: newUser.username,
                 email: newUser.email,
-                password: hashedPassword,
             },
         });
     }
@@ -65,9 +67,11 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
 // Ruta para iniciar sesión
 router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, password } = req.body;
-        // Buscar al usuario en la base de datos por correo electrónico
-        const user = yield User_1.default.findOne({ email });
+        const { usernameOrEmail, password } = req.body;
+        // Buscar al usuario en la base de datos por nombre de usuario o correo electrónico
+        const user = yield User_1.default.findOne({
+            $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+        });
         if (!user) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
@@ -80,9 +84,10 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
             message: 'Inicio de sesión exitoso',
             user: {
                 _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 username: user.username,
                 email: user.email,
-                password: user.password,
             },
         });
     }
@@ -91,4 +96,5 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ error: 'Error al iniciar sesión' });
     }
 }));
+//hola
 exports.default = router;
