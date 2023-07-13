@@ -96,5 +96,4 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ error: 'Error al iniciar sesión' });
     }
 }));
-//hola
 exports.default = router;
