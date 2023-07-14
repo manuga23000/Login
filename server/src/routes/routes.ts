@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
 import User, { IUser } from '../models/User';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const router: Router = Router();
 
-router.get('/users', async (req: Request, res: Response) => {
+router.get('/users', authenticateAdmin, async (req: Request, res: Response) => {
     try {
         const users = await User.find();
         res.status(200).json(users);
@@ -14,10 +15,36 @@ router.get('/users', async (req: Request, res: Response) => {
     }
 });
 
+// Función de middleware para autenticar al usuario como administrador
+function authenticateAdmin(req: Request, res: Response, next: Function) {
+    // Verificar si el usuario tiene el token de autenticación
+    const token = req.headers.authorization;
+    if (!token) {
+        return res.status(401).json({ error: 'Acceso no autorizado' });
+    }
+
+    try {
+        // Verificar y decodificar el token
+        const decodedToken: any = jwt.verify(token, 'secreto'); // Reemplaza 'secreto' con tu propia clave secreta
+
+        // Verificar si el usuario es administrador
+        if (decodedToken.role !== 'admin') {
+            return res.status(403).json({ error: 'Acceso no autorizado' });
+        }
+
+        // El usuario es administrador, continúa con la siguiente función de middleware o controlador
+        next();
+    } catch (error) {
+        console.error('Error al verificar el token', error);
+        res.status(500).json({ error: 'Error al verificar el token' });
+    }
+}
+
 // Ruta para registrar un nuevo usuario
 router.post('/register', async (req: Request, res: Response) => {
     try {
-        const { firstName, lastName, username, email, password } = req.body;
+        const { firstName, lastName, username, email, password, role } =
+            req.body;
 
         // Verificar si el usuario ya existe en la base de datos
         const existingUser = await User.findOne({ email });
@@ -36,6 +63,7 @@ router.post('/register', async (req: Request, res: Response) => {
             username,
             email,
             password: hashedPassword,
+            role,
         });
 
         // Guardar el nuevo usuario en la base de datos
@@ -49,6 +77,7 @@ router.post('/register', async (req: Request, res: Response) => {
                 lastName: newUser.lastName,
                 username: newUser.username,
                 email: newUser.email,
+                role: newUser.role,
             },
         });
     } catch (error) {
@@ -76,14 +105,22 @@ router.post('/login', async (req: Request, res: Response) => {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
 
+        // Generar un token JWT con la información del usuario y la clave secreta
+        const token = jwt.sign(
+            { userId: user._id, role: user.role },
+            'secreto'
+        ); // Reemplaza 'secreto' con tu propia clave secreta
+
         res.status(200).json({
             message: 'Inicio de sesión exitoso',
+            token,
             user: {
                 _id: user._id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 username: user.username,
                 email: user.email,
+                role: user.role,
             },
         });
     } catch (error) {
