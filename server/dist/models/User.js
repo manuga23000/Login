@@ -30,6 +30,7 @@ const userSchema = new mongoose_1.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    role: { type: String, default: 'user' }, // Valor predeterminado de 'role' es 'user'
 });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

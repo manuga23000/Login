@@ -15,8 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const User_1 = __importDefault(require("../models/User"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const authMiddleware_1 = __importDefault(require("../middlewares/authMiddleware"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = (0, express_1.Router)();
-router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/users', authMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield User_1.default.find();
         res.status(200).json(users);
@@ -29,7 +31,7 @@ router.get('/users', (req, res) => __awaiter(void 0, void 0, void 0, function* (
 // Ruta para registrar un nuevo usuario
 router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { firstName, lastName, username, email, password } = req.body;
+        const { firstName, lastName, username, email, password, role } = req.body;
         // Verificar si el usuario ya existe en la base de datos
         const existingUser = yield User_1.default.findOne({ email });
         if (existingUser) {
@@ -45,6 +47,7 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
             username,
             email,
             password: hashedPassword,
+            role,
         });
         // Guardar el nuevo usuario en la base de datos
         yield newUser.save();
@@ -56,6 +59,7 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 lastName: newUser.lastName,
                 username: newUser.username,
                 email: newUser.email,
+                role: newUser.role,
             },
         });
     }
@@ -80,14 +84,18 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (!isPasswordValid) {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
+        // Generar un token JWT con la información del usuario y la clave secreta
+        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, 'secreto'); // Reemplaza 'secreto' con tu propia clave secreta
         res.status(200).json({
             message: 'Inicio de sesión exitoso',
+            token,
             user: {
                 _id: user._id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 username: user.username,
                 email: user.email,
+                role: user.role,
             },
         });
     }
