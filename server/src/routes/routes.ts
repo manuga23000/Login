@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import User, { IUser } from '../models/User';
 import bcrypt from 'bcrypt';
+import authMiddleware from '../middlewares/authMiddleware';
 import jwt from 'jsonwebtoken';
 
 const router: Router = Router();
 
-router.get('/users', authenticateAdmin, async (req: Request, res: Response) => {
+router.get('/users', authMiddleware, async (req: Request, res: Response) => {
     try {
         const users = await User.find();
         res.status(200).json(users);
@@ -14,31 +15,6 @@ router.get('/users', authenticateAdmin, async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
 });
-
-// Función de middleware para autenticar al usuario como administrador
-function authenticateAdmin(req: Request, res: Response, next: Function) {
-    // Verificar si el usuario tiene el token de autenticación
-    const token = req.headers.authorization;
-    if (!token) {
-        return res.status(401).json({ error: 'Acceso no autorizado' });
-    }
-
-    try {
-        // Verificar y decodificar el token
-        const decodedToken: any = jwt.verify(token, 'secreto'); // Reemplaza 'secreto' con tu propia clave secreta
-
-        // Verificar si el usuario es administrador
-        if (decodedToken.role !== 'admin') {
-            return res.status(403).json({ error: 'Acceso no autorizado' });
-        }
-
-        // El usuario es administrador, continúa con la siguiente función de middleware o controlador
-        next();
-    } catch (error) {
-        console.error('Error al verificar el token', error);
-        res.status(500).json({ error: 'Error al verificar el token' });
-    }
-}
 
 // Ruta para registrar un nuevo usuario
 router.post('/register', async (req: Request, res: Response) => {
