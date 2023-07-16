@@ -22,14 +22,6 @@ router.post('/register', async (req: Request, res: Response) => {
         const { firstName, lastName, username, email, password, role } =
             req.body;
 
-        console.log(req.body);
-
-        if (!firstName || !lastName) {
-            return res.status(400).json({
-                error: 'Los campos firstName y lastName son requeridos',
-            });
-        }
-
         // Verificar si el usuario ya existe en la base de datos
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -75,8 +67,6 @@ router.post('/login', async (req: Request, res: Response) => {
     try {
         const { usernameOrEmail, password } = req.body;
 
-        console.log(req.body);
-
         // Buscar al usuario en la base de datos por nombre de usuario o correo electrónico
         const user = await User.findOne({
             $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
@@ -109,7 +99,6 @@ router.post('/login', async (req: Request, res: Response) => {
                 role: user.role,
             },
         });
-        console.log(res.status);
     } catch (error) {
         console.error('Error al iniciar sesión', error);
         res.status(500).json({ error: 'Error al iniciar sesión' });
