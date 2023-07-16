@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const cors_1 = __importDefault(require("cors"));
 const routes_1 = __importDefault(require("./routes/routes"));
 const User_1 = __importDefault(require("./models/User"));
 // Crea una instancia de la aplicación Express
@@ -37,6 +38,11 @@ mongoose_1.default
 });
 // Middleware para analizar el cuerpo de las solicitudes como JSON
 app.use(express_1.default.json());
+// Configurar el middleware CORS
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:4200',
+    optionsSuccessStatus: 200, // Algunos navegadores pueden requerir este código de estado para las respuestas CORS exitosas
+}));
 // Usa el enrutador como middleware
 app.use('/', routes_1.default);
 // Resto de las configuraciones y middleware necesarios
