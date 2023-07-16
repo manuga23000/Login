@@ -53,8 +53,10 @@
                         >
                         <input
                             type="text"
+                            name="usernameOrEmail"
                             class="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                             placeholder="Username or Email"
+                            [(ngModel)]="usernameOrEmail"
                         />
                     </div>
                     <div class="relative w-full mb-3">
@@ -66,8 +68,10 @@
                         <div class="relative">
                             <input
                                 type="password"
+                                name="password"
                                 class="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                                 placeholder="Password"
+                                [(ngModel)]="password"
                             />
                             <div
                                 class="absolute right-3 top-2/4 transform -translate-y-2/4"
@@ -104,6 +108,8 @@
                         <button
                             class="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                             type="button"
+                            (click)="loginUser()"
+                            [disabled]="!usernameOrEmail || !password"
                         >
                             Sign In
                         </button>

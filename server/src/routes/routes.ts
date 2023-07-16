@@ -75,6 +75,8 @@ router.post('/login', async (req: Request, res: Response) => {
     try {
         const { usernameOrEmail, password } = req.body;
 
+        console.log(req.body);
+
         // Buscar al usuario en la base de datos por nombre de usuario o correo electrónico
         const user = await User.findOne({
             $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
@@ -107,6 +109,7 @@ router.post('/login', async (req: Request, res: Response) => {
                 role: user.role,
             },
         });
+        console.log(res.status);
     } catch (error) {
         console.error('Error al iniciar sesión', error);
         res.status(500).json({ error: 'Error al iniciar sesión' });
