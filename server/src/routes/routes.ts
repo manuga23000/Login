@@ -22,6 +22,14 @@ router.post('/register', async (req: Request, res: Response) => {
         const { firstName, lastName, username, email, password, role } =
             req.body;
 
+        console.log(req.body);
+
+        if (!firstName || !lastName) {
+            return res.status(400).json({
+                error: 'Los campos firstName y lastName son requeridos',
+            });
+        }
+
         // Verificar si el usuario ya existe en la base de datos
         const existingUser = await User.findOne({ email });
         if (existingUser) {

@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import cors from 'cors';
 import routes from './routes/routes';
 import User from './models/User';
 
@@ -29,6 +30,14 @@ mongoose
 
 // Middleware para analizar el cuerpo de las solicitudes como JSON
 app.use(express.json());
+
+// Configurar el middleware CORS
+app.use(
+    cors({
+        origin: 'http://localhost:4200',
+        optionsSuccessStatus: 200, // Algunos navegadores pueden requerir este código de estado para las respuestas CORS exitosas
+    })
+);
 
 // Usa el enrutador como middleware
 app.use('/', routes);
