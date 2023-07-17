@@ -5,9 +5,7 @@ import routes from './routes/routes';
 import User from './models/User';
 
 const app = express();
-
 const PORT = 3000;
-
 const resetDatabaseOnStartup = false;
 
 mongoose

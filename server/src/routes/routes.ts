@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import User, { IUser } from '../models/User';
 import bcrypt from 'bcrypt';
-import authMiddleware from '../middlewares/authMiddleware';
 import jwt from 'jsonwebtoken';
+import authMiddleware from '../middlewares/authMiddleware';
 
 const router: Router = Router();
 
@@ -84,8 +84,8 @@ router.post('/login', async (req: Request, res: Response) => {
         // Generar un token JWT con la información del usuario y la clave secreta
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            'secreto'
-        ); // Reemplaza 'secreto' con tu propia clave secreta
+            process.env.JWT_SECRET!
+        );
 
         res.status(200).json({
             message: 'Inicio de sesión exitoso',

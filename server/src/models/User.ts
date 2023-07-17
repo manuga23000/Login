@@ -15,7 +15,7 @@ const userSchema: Schema = new Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, default: 'user' }, // Valor predeterminado de 'role' es 'user'
+    role: { type: String, default: 'user' },
 });
 
 const User = mongoose.model<IUser>('User', userSchema);
