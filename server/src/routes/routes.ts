@@ -84,8 +84,8 @@ router.post('/login', async (req: Request, res: Response) => {
         // Generar un token JWT con la información del usuario y la clave secreta
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            process.env.JWT_SECRET!
-        );
+            'secreto'
+        ); // Reemplaza 'secreto' con tu propia clave secreta
 
         res.status(200).json({
             message: 'Inicio de sesión exitoso',
