@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const User_1 = __importDefault(require("../models/User"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const authMiddleware_1 = __importDefault(require("../middlewares/authMiddleware"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const authMiddleware_1 = __importDefault(require("../middlewares/authMiddleware"));
 const router = (0, express_1.Router)();
 router.get('/users', authMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -85,7 +85,7 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
         // Generar un token JWT con la información del usuario y la clave secreta
-        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, 'secreto'); // Reemplaza 'secreto' con tu propia clave secreta
+        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET);
         res.status(200).json({
             message: 'Inicio de sesión exitoso',
             token,
