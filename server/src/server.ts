@@ -25,7 +25,7 @@ app.use(express.json());
 
 app.use(
     cors({
-        origin: 'http://localhost:4200',
+        origin: 'http://localhost:3001', // Cambia esto a la dirección correcta de tu aplicación Next.js
         optionsSuccessStatus: 200,
     })
 );
