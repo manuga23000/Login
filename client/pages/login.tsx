@@ -31,8 +31,19 @@ const Login: React.FC = () => {
             .then((data) => {
                 // Aquí puedes manejar la respuesta del backend después del inicio de sesión
                 console.log('Inicio de sesión exitoso:', data);
-                // Redirigir al usuario a la página de inicio o al dashboard
-                router.push('/');
+
+                // Asegurarse de que el campo "role" esté presente en la respuesta del servidor
+                const userRole = data?.user?.role;
+
+                // Redirigir al usuario según el rol
+                if (userRole === 'user') {
+                    router.push('/user');
+                } else if (userRole === 'admin') {
+                    router.push('/admin');
+                } else {
+                    // En caso de que el rol no sea reconocido, redirigir a una página predeterminada
+                    router.push('/');
+                }
             })
             .catch((error) => {
                 // Aquí puedes manejar el error si ocurre algún problema con la petición
