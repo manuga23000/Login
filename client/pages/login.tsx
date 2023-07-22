@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import firebase from '../firebase'; // Importa el archivo de configuración de Firebase
 
 const Login: React.FC = () => {
     const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -13,41 +14,47 @@ const Login: React.FC = () => {
     const router = useRouter();
 
     const loginUser = () => {
-        // Objeto con las credenciales del usuario para enviar al backend
-        const credentials = {
-            usernameOrEmail,
-            password,
-        };
+        firebase
+            .auth()
+            .signInWithEmailAndPassword(usernameOrEmail, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log('Inicio de sesión exitoso:', user);
 
-        // Hacer la petición POST al backend para el inicio de sesión
-        fetch('http://localhost:3000/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(credentials),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                // Aquí puedes manejar la respuesta del backend después del inicio de sesión
-                console.log('Inicio de sesión exitoso:', data);
+                // Realizar una petición POST al backend para obtener el token JWT
+                fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ usernameOrEmail, password }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // Aquí puedes manejar la respuesta del backend después del inicio de sesión
+                        const token = data?.token;
 
-                // Asegurarse de que el campo "role" esté presente en la respuesta del servidor
-                const userRole = data?.user?.role;
+                        // Decodificar el payload del token JWT
+                        const decodedToken = JSON.parse(
+                            atob(token.split('.')[1])
+                        );
 
-                // Redirigir al usuario según el rol
-                if (userRole === 'user') {
-                    router.push('/user');
-                } else if (userRole === 'admin') {
-                    router.push('/admin');
-                } else {
-                    // En caso de que el rol no sea reconocido, redirigir a una página predeterminada
-                    router.push('/');
-                }
+                        // Redirigir al usuario según el rol
+                        if (decodedToken.role === 'user') {
+                            router.push('/user');
+                        } else if (decodedToken.role === 'admin') {
+                            router.push('/admin');
+                        } else {
+                            // En caso de que el rol no sea reconocido, redirigir a una página predeterminada
+                            router.push('/');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error en el inicio de sesión:', error);
+                    });
             })
             .catch((error) => {
-                // Aquí puedes manejar el error si ocurre algún problema con la petición
-                console.error('Error en el inicio de sesión:', error);
+                console.error('Error en el inicio de sesión:', error.message);
             });
     };
 
