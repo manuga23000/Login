@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import firebase from '../firebase'; // Importa el archivo de configuración de Firebase
 import router from 'next/router';
 
 const Register: React.FC = () => {
@@ -9,20 +10,11 @@ const Register: React.FC = () => {
     const [password, setPassword] = useState('');
 
     const styles = `
-        @import url('https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css');
-        @import url('https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css');
-    `;
-
-    const resetForm = () => {
-        setFirstname('');
-        setLastname('');
-        setUsername('');
-        setEmail('');
-        setPassword('');
-    };
+    @import url('https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css');
+    @import url('https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css');
+  `;
 
     const registerUser = () => {
-        // Objeto con los datos del usuario para enviar al backend
         const userData = {
             firstName,
             lastName,
@@ -31,32 +23,54 @@ const Register: React.FC = () => {
             password,
         };
 
-        router.push('/login');
+        // Registrar al usuario en Firebase Authentication
+        firebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then((userCredential: firebase.auth.UserCredential) => {
+                const user = userCredential.user;
+                console.log('Registro exitoso en Firebase:', user);
 
-        // Hacer la petición POST al backend para registrar al usuario
-        fetch('http://localhost:3000/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
+                // Hacer la petición POST al backend para guardar los datos del usuario
+                fetch('http://localhost:3000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData),
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        // Aquí puedes manejar la respuesta del backend después del registro
+                        console.log('Registro exitoso en el backend:', data);
+
+                        // Redirigir a la página de inicio de sesión después del registro
+                        router.push('/login');
+
+                        // También puedes hacer alguna acción adicional aquí, si es necesario
+                    })
+                    .catch((error) => {
+                        // Aquí obtendremos el mensaje de error del servidor y lo mostraremos en la consola
+                        console.error(
+                            'Error en el registro en el backend:',
+                            error.message
+                        );
+                    });
             })
-            .then((data) => {
-                // Aquí puedes manejar la respuesta del backend después del registro
-                console.log('Registro exitoso:', data);
-                resetForm();
-            })
-            .catch((error) => {
-                // Aquí obtendremos el mensaje de error del servidor y lo mostraremos en la consola
-                console.error('Error en el registro:', error.message);
+            .catch((error: any) => {
+                // Aquí puedes manejar los errores durante el registro en Firebase Authentication
+                console.error(
+                    'Error en el registro en Firebase:',
+                    error.message
+                );
             });
     };
+
     return (
         <section className="bg-blueGray-50 flex justify-center items-center h-screen">
             <style dangerouslySetInnerHTML={{ __html: styles }} />
