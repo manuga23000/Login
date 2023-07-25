@@ -15,7 +15,7 @@ admin.initializeApp({
 
 const app = express();
 const PORT = 3000;
-const resetDatabaseOnStartup = true;
+const resetDatabaseOnStartup = false;
 
 mongoose
     .connect('mongodb://localhost:27017/my-database')
