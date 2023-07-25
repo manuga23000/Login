@@ -7,15 +7,9 @@ import * as admin from 'firebase-admin';
 
 const serviceAccount = require('../../server/credentialfirebase.json');
 
-// Inicializa firebase-admin
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://YOUR_PROJECT_ID.firebaseio.com',
-});
-
 const app = express();
 const PORT = 3000;
-const resetDatabaseOnStartup = false;
+const resetDatabaseOnStartup = true;
 
 mongoose
     .connect('mongodb://localhost:27017/my-database')
