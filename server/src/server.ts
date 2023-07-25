@@ -7,6 +7,12 @@ import * as admin from 'firebase-admin';
 
 const serviceAccount = require('../../server/credentialfirebase.json');
 
+// Inicializa firebase-admin
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'login-2aa36.firebaseapp.com',
+});
+
 const app = express();
 const PORT = 3000;
 const resetDatabaseOnStartup = true;
