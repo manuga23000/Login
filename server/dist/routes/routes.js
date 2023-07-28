@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const User_1 = __importDefault(require("../models/User"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const authMiddleware_1 = __importDefault(require("../middlewares/authMiddleware"));
 const router = (0, express_1.Router)();
 router.get('/users', authMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -69,39 +68,4 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 }));
 // Ruta para iniciar sesión
-router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { usernameOrEmail, password } = req.body;
-        // Buscar al usuario en la base de datos por nombre de usuario o correo electrónico
-        const user = yield User_1.default.findOne({
-            $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
-        });
-        if (!user) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-        // Verificar si la contraseña proporcionada coincide con la almacenada en la base de datos
-        const isPasswordValid = yield bcrypt_1.default.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Contraseña incorrecta' });
-        }
-        // Generar un token JWT con la información del usuario y la clave secreta
-        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, 'secreto'); // Reemplaza 'secreto' con tu propia clave secreta
-        res.status(200).json({
-            message: 'Inicio de sesión exitoso',
-            token,
-            user: {
-                _id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-            },
-        });
-    }
-    catch (error) {
-        console.error('Error al iniciar sesión', error);
-        res.status(500).json({ error: 'Error al iniciar sesión' });
-    }
-}));
 exports.default = router;
