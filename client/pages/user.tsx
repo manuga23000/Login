@@ -1,6 +1,3 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-
 const User: React.FC = () => {
     return (
         <div>

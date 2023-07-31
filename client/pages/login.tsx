@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import firebase from '../firebase'; // Importa el archivo de configuración de Firebase
 
 const Login: React.FC = () => {
     const [usernameOrEmail, setUsernameOrEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    // Estilos (Opcional: Si no se utiliza, puede ser eliminado)
     const styles = `
         @import url('https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css');
         @import url('https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css');
@@ -14,47 +14,34 @@ const Login: React.FC = () => {
     const router = useRouter();
 
     const loginUser = () => {
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(usernameOrEmail, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log('Inicio de sesión exitoso:', user);
+        // Realizar una petición POST al backend para obtener el token JWT
+        fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ usernameOrEmail, password }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                // Aquí puedes manejar la respuesta del backend después del inicio de sesión
+                const token = data?.token;
 
-                // Realizar una petición POST al backend para obtener el token JWT
-                fetch('http://localhost:3000/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ usernameOrEmail, password }),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        // Aquí puedes manejar la respuesta del backend después del inicio de sesión
-                        const token = data?.token;
+                // Decodificar el payload del token JWT
+                const decodedToken = JSON.parse(atob(token.split('.')[1]));
 
-                        // Decodificar el payload del token JWT
-                        const decodedToken = JSON.parse(
-                            atob(token.split('.')[1])
-                        );
-
-                        // Redirigir al usuario según el rol
-                        if (decodedToken.role === 'user') {
-                            router.push('/user');
-                        } else if (decodedToken.role === 'admin') {
-                            router.push('/admin');
-                        } else {
-                            // En caso de que el rol no sea reconocido, redirigir a una página predeterminada
-                            router.push('/');
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error en el inicio de sesión:', error);
-                    });
+                // Redirigir al usuario según el rol
+                if (decodedToken.role === 'user') {
+                    router.push('/user');
+                } else if (decodedToken.role === 'admin') {
+                    router.push('/admin');
+                } else {
+                    // En caso de que el rol no sea reconocido, redirigir a una página predeterminada
+                    router.push('/');
+                }
             })
             .catch((error) => {
-                console.error('Error en el inicio de sesión:', error.message);
+                console.error('Error en el inicio de sesión:', error);
             });
     };
 
