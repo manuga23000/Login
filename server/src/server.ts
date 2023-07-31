@@ -6,7 +6,7 @@ import User from './models/User';
 
 const app = express();
 const PORT = 3000;
-const resetDatabaseOnStartup = false;
+const resetDatabaseOnStartup = true;
 
 mongoose
     .connect('mongodb://localhost:27017/my-database')
