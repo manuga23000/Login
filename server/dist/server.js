@@ -18,8 +18,8 @@ const cors_1 = __importDefault(require("cors"));
 const routes_1 = __importDefault(require("./routes/routes"));
 const User_1 = __importDefault(require("./models/User"));
 const app = (0, express_1.default)();
-const PORT = 3001;
-const resetDatabaseOnStartup = false;
+const PORT = 3000;
+const resetDatabaseOnStartup = true;
 mongoose_1.default
     .connect('mongodb://localhost:27017/my-database')
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
